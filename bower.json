@@ -1,0 +1,21 @@
+{
+  "name": "chat",
+  "description": "",
+  "main": "app.js",
+  "authors": [
+    "linuly"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "2",
+    "bootstrap": "^3.3.7"
+  }
+}
