@@ -21,3 +21,4 @@ function write(message) {
   var dashboard = document.getElementsByClassName('dashboard');
   dashboard[0].insertAdjacentHTML('beforeend', "<p>" + message.name + ": " + message.message + "</p>");
 }
+// 
