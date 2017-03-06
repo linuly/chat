@@ -7,14 +7,15 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
 var login = require('./routes/login');
+var regist = require('./routes/regist');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.engine('ejs', require('ejs-locals'));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -33,10 +34,29 @@ app.use(session({
   }
 }));
 
+var logoutCheck = function(req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
+var loginCheck = function(req, res, next) {
+  if (req.session.user) {
+    res.redirect('/');
+  } else {
+    next();
+  }
+};
+
 app.use('/public', express.static('public'));
-app.use('/', index);
-app.use('/users', users);
-app.use('/login', login);
+app.use('/login', loginCheck, login);
+app.use('/regist', loginCheck, regist);
+app.use('/', logoutCheck, index);
+app.get('/logout', function(req, res){
+  req.session.destroy();
+  res.redirect('/');
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -10,17 +10,19 @@ var calculate = {
        * @param  {name: 1} fields         [description]
        * @return {res object}                [description]
        */
-      function (collectionName, where, fields) {
+      function (collectionName, where, fields, cb) {
         MongoClient.connect(url, function (err, db) {
           var collection = db.collection(collectionName);
           var res = collection.find(where, fields);
-          console.log(res);
-
-          // db.on('close', function () {
-          //   console.log('close DB');
-          // });
-          db.close();
-          return res;
+          res.toArray(function(error, docs) {
+            db.close();
+            if (error) {
+              console.log(error);
+              cb(null);
+            } else {
+              cb(docs);
+            }
+          });
         });
       },
     insert:
@@ -31,12 +33,45 @@ var calculate = {
           db.close();
         });
       },
-    update: function (a) {
-
-    },
-    delete: function (a) {
-
-    }
+    update:
+      function (collectionName, set, where) {
+        MongoClient.connect(url, function (err, db) {
+          var collection = db.collection(collectionName);
+          collection.updateOne(set, {$set: where});
+          db.close();
+        });
+      },
+    delete:
+      function (collectionName, set) {
+        MongoClient.connect(url, function (err, db) {
+          var collection = db.collection(collectionName);
+          collection.deleteOne(set);
+          db.close();
+        });
+      },
+    join:
+      function (collectionName, from, localField, foreignField, as, where, cb) {
+        MongoClient.connect(url, function (err, db) {
+          var collection = db.collection(collectionName);
+          collection.aggregate([
+            {$lookup: {
+              from: from,
+              localField: localField,
+              foreignField: foreignField,
+              as: as
+            }},
+            {$match: where}
+          ], function(error, docs) {
+            db.close();
+            if (error) {
+                console.log(error);
+              cb(null);
+            } else {
+              cb(docs);
+            }
+          });
+        });
+      }
 };
 module.exports = calculate;
 /*

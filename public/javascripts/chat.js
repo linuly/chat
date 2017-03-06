@@ -1,24 +1,29 @@
 var socket = io.connect();
 
-function send(elm) {
-  var forms = elm.form;
-  var name = forms.name;
-  var message = forms.message;
-  if (name.value != '' && message.value != '') {
-    socket.emit('message', {value: {'name': name.value, 'message': message.value}});
-  } else {
-    var dashboard = document.getElementByid('messageForm');
-    dashboard[0].insertAdjacentHTML('afterend', "<p style='color: red;'>※全部入力してね</p>");
+var user = document.getElementById('messageForm').dataset.user;
+var room = document.getElementById('room-name').dataset.room;
+
+function send() {
+  var message = document.getElementById('message');
+  if (message.value != '') {
+    socket.emit('message', {'user': user, 'room': room, 'message': message.value});
   }
   message.value = '';
+  return false;
 }
 
-socket.on('from_server', function (data) {
-  write(data.value);
+socket.on('receive_message', function (data) {
+  if (data.data.id == room) {
+    if (data.user.id == user) {
+      var foo = 'me';
+      var name = '';
+    } else {
+      var foo = 'you';
+      var name = "<div class='name'>" + data.user.name + "</div>"
+    }
+    var board = document.querySelector('.board');
+    board.insertAdjacentHTML('beforeend',
+      "<div class='" + foo + "'>" + name + "<div class='message well'><span>" + data.data.message + "</span></div>"
+    );
+  }
 });
-
-function write(message) {
-  var dashboard = document.getElementsByClassName('dashboard');
-  dashboard[0].insertAdjacentHTML('beforeend', "<p>" + message.name + ": " + message.message + "</p>");
-}
-// 

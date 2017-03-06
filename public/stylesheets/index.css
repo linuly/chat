@@ -21,7 +21,7 @@ body {
 #dashboard {
   background-color: #F4F4F2;
   position: relative;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 .dashboard-head {
   position: relative; width: 100%;
@@ -62,11 +62,11 @@ body {
   display: inline-block;
   border-radius: 7px;
 }
-.message.receive {
+.you .message {
   background-color: #FFF;
   border-bottom-left-radius: 0px;
 }
-.message.send {
+.me .message {
   background-color: #40AAEF;
   border-bottom-right-radius: 0px;
   color: #FFF;

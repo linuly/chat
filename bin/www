@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('bootstrap:server');
 var http = require('http');
+var bson = require('bson');
+var db = require('../js/mongo');
 var socketio = require('socket.io');
 
 /**
@@ -32,10 +34,26 @@ server.on('listening', onListening);
 
 var io = socketio.listen(server);
 io.sockets.on('connection', function (socket) {
-  // console.log(socket);
+
+    // socket.on('disconnect', function() {
+    //   db.update('user', {status: 0}, {id: user.id});
+    // });
+
   socket.on('message', function (data) {
-    // console.log(data.value);
-    io.sockets.emit('from_server', {value: data.value});
+    db.select('user', {_id: bson.ObjectId(data.user)}, {}, function (foo) {
+      if (foo) {
+          db.insert('chat_log', {
+            user_id: bson.ObjectId(data.user),
+            room_id: bson.ObjectId(data.room),
+            message: data.message,
+            send_date: new Date()
+          });
+          io.sockets.emit('receive_message', {
+            user: {id: data.user, name: foo[0].user_name},
+            data: {id: data.room, message: data.message, date: new Date()}
+          });
+      }
+    });
   });
 });
 
