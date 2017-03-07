@@ -12,10 +12,11 @@ router.post('/', function(req, res, next) {
   db.select('user', {user_name: req.body.userName, user_password: req.body.passWord}, {}, function (data) {
     if(data.length == 0) {
       if (req.body.passWord == req.body.rePassWord) {
-        req.session.user = {id: data[0]._id, name: req.body.userName};
         // ユーザ登録
-        db.insert('user', {user_name: req.body.userName, user_password: req.body.passWord, status: 1});
-        res.redirect('/');
+        db.insert('user', {user_name: req.body.userName, user_password: req.body.passWord, status: 1}, function (user) {
+          req.session.user = {id: user, name: req.body.userName};
+          res.redirect('/');
+        });
       } else {
         err = 'パスワードが一致しません';
       }

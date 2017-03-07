@@ -26,11 +26,18 @@ var calculate = {
         });
       },
     insert:
-      function (collectionName, set) {
+      function (collectionName, set, cb) {
         MongoClient.connect(url, function (err, db) {
           var collection = db.collection(collectionName);
-          collection.insertOne(set);
-          db.close();
+          collection.insertOne(set, function (error, docs) {
+            db.close();
+            if (error) {
+              console.log(error);
+              cb(null);
+            } else {
+              cb(docs.insertedId);
+            }
+          });
         });
       },
     update:

@@ -35,10 +35,6 @@ server.on('listening', onListening);
 var io = socketio.listen(server);
 io.sockets.on('connection', function (socket) {
 
-    // socket.on('disconnect', function() {
-    //   db.update('user', {status: 0}, {id: user.id});
-    // });
-
   socket.on('message', function (data) {
     db.select('user', {_id: bson.ObjectId(data.user)}, {}, function (foo) {
       if (foo) {
@@ -47,7 +43,7 @@ io.sockets.on('connection', function (socket) {
             room_id: bson.ObjectId(data.room),
             message: data.message,
             send_date: new Date()
-          });
+        }, function (data) {});
           io.sockets.emit('receive_message', {
             user: {id: data.user, name: foo[0].user_name},
             data: {id: data.room, message: data.message, date: new Date()}
@@ -55,6 +51,24 @@ io.sockets.on('connection', function (socket) {
       }
     });
   });
+
+socket.on('add_room', function (data) {
+    console.log(data);
+  db.select('user', {user_name: data.name}, {}, function (user) {
+    if (user.length) {
+        console.log(user);
+      db.join('room_member', 'room', 'room_id', '_id', 'room', {user_id: bson.ObjectId(user[0]._id),room_id: bson.ObjectId(data.room)}, function (roomdata) {
+      console.log(roomdata);
+        if (roomdata.length) {
+          io.sockets.emit('receive_room', {
+            room: {id: roomdata[0].room_id, name: roomdata[0].room[0].room_name},
+            user: {id: user[0]._id}
+          });
+        }
+      });
+    }
+  });
+});
 });
 
 /**

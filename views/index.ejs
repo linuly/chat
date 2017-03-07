@@ -20,16 +20,46 @@
 <div class="container">
   <div id="main" class="row">
 
+    <div class="modal fade" id="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>×</span></button>
+            <h4 class="modal-title">タイトル</h4>
+          </div>
+          <div class="modal-body">
+            <input type="text" name="contact" id="request" placeholder="username" class="form-control" autofocus>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="add_room();">追加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="col-sm-4">
       <div id="contact" class="panel panel-default">
-        <div class="contact-head panel-heading"><span>検索</span></div>
+        <div class="contact-head panel-heading row">
+          <div class="col-xs-9">
+            検索窓
+          </div>
+          <div class="col-xs-3">
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal" onclick="modal_btn('contact');">追加</button>
+          </div>
+        </div>
         <div class="contact-body list-group">
-          <% roomList.forEach(function (room) { %>
-          <div class="list-group-item">
+          <%
+            if (roomList) {
+              roomList.forEach(function (room) {
+          %>
+          <div class="list-group-item" data-room="<%= room.room[0]._id %>">
             <span class="badge">14</span>
             <%= room.room[0].room_name %>
           </div>
-          <% }); %>
+          <%
+              });
+            }
+          %>
         </div>
       </div>
     </div>
@@ -38,32 +68,47 @@
       <div id="dashboard" class="panel panel-default">
 
         <div class="panel-heading row">
-          <div id="room-name" data-room="<%= roomList[0].room_id %>" class="col-xs-10">
-            <%= roomList[0].room[0].room_name %>
+          <%
+            if (roomList) {
+              var room_id = roomList[0].room_id;
+              var room_name = roomList[0].room[0].room_name;
+            } else {
+              var room_id = '';
+              var room_name = '';
+            }
+          %>
+          <div id="room-name" data-room="<%= room_id %>" class="col-xs-10">
+            <%= room_name %>
           </div>
-          <div class="col-xs-2 btn btn-default">
-              追加
+          <div class="col-xs-2">
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal" onclick="modal_btn('member'); return false;">追加</button>
           </div>
         </div>
 
         <div class="board panel-body">
-          <% dashboard.forEach(function (message) { %>
+          <%
+            if (dashboard) {
+              dashboard.forEach(function (message) {
+          %>
           <div class="<%= foo = (message.user_id == user.id) ? 'me' : 'you' %>">
             <% if (foo == 'you') { %>
             <div class="name"></div>
             <% } %>
             <div class="message receive well"><span><%= message.message %></span></div>
           </div>
-          <% }); %>
+          <%
+              });
+            }
+          %>
         </div>
 
         <div class="panel-footer">
-          <form id="messageForm" class="form-horizontal" onsubmit="return send(); return false;" data-user="<%= user.id %>">
+          <form id="messageForm" class="form-horizontal" data-user="<%= user.id %>">
             <div class="col-xs-10">
               <input type="text" name="message" id="message" placeholder="メッセージ" class="form-control" autofocus>
             </div>
             <div class="col-xs-2">
-              <input type="submit" class="btn btn-info btn-block" onsubmit="return false;" value="送信">
+              <input type="submit" class="btn btn-info btn-block" value="送信">
             </div>
           </form>
         </div>
